@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "./Loading";
-import imagemapping from '../Mappings/imagemapping.json'
+import imagemapping from "../Mappings/imagemapping.json";
+import styles from "../page.module.css";
 
 export default function Lander() {
   const [teams, setTeams] = useState(null);
@@ -54,25 +55,40 @@ export default function Lander() {
     setFixtureInfo(getFixtureDetails);
   };
   return (
-    <div>
+    <>
       {fixtureInfo && Array.isArray(fixtureInfo) ? (
         fixtureInfo.map((fixture) => {
-          const team1ImageMap = imagemapping.find(d =>  d.id == fixture.teams[0].team.id).imageId ;
-          const team2ImageMap = imagemapping.find(d =>  d.id == fixture.teams[1].team.id).imageId ;
+          const team1ImageMap = imagemapping.find(
+            (d) => d.id == fixture.teams[0].team.id
+          ).imageId;
+          const team2ImageMap = imagemapping.find(
+            (d) => d.id == fixture.teams[1].team.id
+          ).imageId;
           return (
-            <div id={fixture.id}>
-              <img src={`https://resources.premierleague.com/premierleague/badges/50/t${team1ImageMap}@x2.png`}/>
-              <span>{fixture.teams[0].team.name}</span>
-              {" VS "}
-              <img src={`https://resources.premierleague.com/premierleague/badges/50/t${team2ImageMap}@x2.png`}/>
-              <span>{fixture.teams[1].team.name}</span>
-              <span>{new Date(fixture.kickoff.millis).toUTCString()}</span>
+            <div id={fixture.id} className={styles.card}>
+              <span>
+                <img
+                  width={90}
+                  height={90}
+                  src={`https://resources.premierleague.com/premierleague/badges/50/t${team1ImageMap}@x2.png`}
+                />
+                <span>{fixture.teams[0].team.name}</span>
+              </span>
+              <span>{" VS "}</span>
+              <span>
+                <span>{fixture.teams[1].team.name}</span>
+                <img
+                  width={90}
+                  height={90}
+                  src={`https://resources.premierleague.com/premierleague/badges/50/t${team2ImageMap}@x2.png`}
+                />
+              </span>
             </div>
           );
         })
       ) : (
-        <Loading/>
+        <Loading />
       )}
-    </div>
+    </>
   );
 }
