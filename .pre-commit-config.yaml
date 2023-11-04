@@ -1,0 +1,94 @@
+# Pre-commit configuration file to enforce good coding standards
+ci:
+  skip: [flake8]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-json
+        name: Checking json syntax
+        description: Attempts to load all json files to verify syntax.
+      - id: check-added-large-files
+        name: Checking for large files
+        description: Prevents giant files from being committed.
+      - id: debug-statements
+        name: Checking for debug statements
+        description: Prevents debug statements from being committed.
+      - id: check-yaml
+        name: Checking yaml files syntax
+        description: Attempts to load all yaml files to verify syntax.
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        description: Trimming trailing whitespace.
+      - id: mixed-line-ending
+        name: Replacing or checking mixed line endings
+        description: Replaces or checks mixed line ending.
+      - id: check-merge-conflict
+        name: Checking for merge conflict
+        description: Check for files that contain merge conflict strings.
+      - id: end-of-file-fixer
+        name: Newline at the end of file
+        description: Makes sure files end in a newline and only a newline.
+      - id: requirements-txt-fixer
+        name: Sorting entries at requirements.txt
+        description: Sorts entries in requirements.txt.
+      - id: check-ast
+        description: Checking for valid Python code
+      - id: check-case-conflict
+        name: Checking for case conflicts
+        description: Checks for files with names that would conflict on a case-insensitive filesystem like macOS HFS+ or Windows NTFS.
+      - id: detect-private-key
+        name: Detecting private keys
+        description: Detects private keys.
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-typing-imports==1.11.0]
+        name: Checks for Python style using flake8.
+        args:
+          - --max-line-length=120
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-no-log-warn
+        name: A quick check for the deprecated `.warn()` method of python loggers
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v3.1.0
+    hooks:
+      - id: add-trailing-comma
+        args: [--py36-plus]
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+        name: Refactoring the Python syntax using black.
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort
+        name: Refactoring the imports using isort.
+        args: ["--profile", "black"]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.6.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          [types-requests, types-pytz, types-python-dateutil]
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: 3.10.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
