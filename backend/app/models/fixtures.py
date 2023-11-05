@@ -126,7 +126,6 @@ class Fixture(Base):
                 second_team == cls.away_team,
                 format_date_string(date) == cls.date,
             )
-            .first()
         )
         result = await db_session.execute(query)
         value = result.scalars().first()
