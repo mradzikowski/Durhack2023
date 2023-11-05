@@ -3,7 +3,7 @@ import os
 
 from app.db.session import async_session
 from app.models.fixtures import Fixture
-from utils import get_logger
+from app.utils import get_logger
 
 logger = get_logger("Init DB")
 
