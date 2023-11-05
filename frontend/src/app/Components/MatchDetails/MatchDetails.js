@@ -61,7 +61,7 @@ const MatchDetails = ({ selected, setSelected }) => {
               <h2 style={{ textAlign: "center" }}>
                 {selected.kickoff.millis
                   ? new Date(selected.kickoff.millis).toDateString()
-                  : "To be Decided"}
+                  : "TBD"}
               </h2>
 
               {/* Display Teams */}

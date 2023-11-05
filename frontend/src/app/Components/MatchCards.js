@@ -68,18 +68,9 @@ export default function MatchCards({ setSelected }) {
           fixture.team1ImageId = team1ImageMap;
           fixture.team2ImageId = team2ImageMap;
           return (
-            <div
-              id={fixture.id}
-              key={fixture.id}
-              className={`${styles.card} click`}
-              onClick={() => setSelected(fixture)}
-            >
-              <div style={{ textAlign: "center" }}>
-                {fixture && fixture.kickoff && fixture.kickoff.label
-                  ? new Date(fixture.kickoff.millis).toDateString()
-                  : "To be Decided"}
-              </div>
-              <div style={{ display: "flex" }}>
+            <div id={fixture.id} key={fixture.id} className={`${styles.card} click`} onClick={()=>setSelected(fixture)}>
+              <div style={{textAlign:"center"}}>{ fixture && fixture.kickoff && fixture.kickoff.label ? new Date(fixture.kickoff.millis).toDateString() : "TBD"}</div>
+              <div style={{display:"flex"}}>
                 <div className="team">
                   <img
                     width={90}
