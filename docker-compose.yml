@@ -59,3 +59,22 @@ services:
       interval: 3s
       timeout: 1s
       retries: 5
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/usr/src/app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    restart: on-failure
+    depends_on:
+      - db
+      - backend
+      - data_processor
+      - data_injector
+      - rabbitmq
