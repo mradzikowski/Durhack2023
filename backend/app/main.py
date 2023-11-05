@@ -1,10 +1,8 @@
-from starlette.middleware.cors import CORSMiddleware
-
 from app.api.routes.data import fixtures
-from fastapi import FastAPI
-
 from app.core.init_db import init_database_on_startup
 from app.utils import get_logger
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 logger = get_logger("API Main App")
 

@@ -9,7 +9,6 @@ matplotlib
 numpy
 
 
-Then use, train.py to the model. For this case, the model has already been trained and changed to model.pkl file. 
+Then use, train.py to the model. For this case, the model has already been trained and changed to model.pkl file.
 
-Then, use go to the directory, and type: python predict.py to see the output. 
-
+Then, use go to the directory, and type: python predict.py to see the output.

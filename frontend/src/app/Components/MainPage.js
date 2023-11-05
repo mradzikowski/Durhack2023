@@ -1,8 +1,8 @@
 import React from "react";
 import MatchCards from "./MatchCards";
-import Image from 'next/image'
-import styles from '../page.module.css'
-const MainPage = ({setSelected}) => {
+import Image from "next/image";
+import styles from "../page.module.css";
+const MainPage = ({ setSelected }) => {
   return (
     <>
       <div className={styles.description}>
@@ -41,7 +41,7 @@ const MainPage = ({setSelected}) => {
       </div>
 
       <div className={`${styles.grid} gridone`}>
-        <MatchCards setSelected={setSelected}/>
+        <MatchCards setSelected={setSelected} />
       </div>
     </>
   );

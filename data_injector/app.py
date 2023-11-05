@@ -56,13 +56,12 @@ def connect_rabbitmq() -> pika.BlockingConnection | None:
 
 
 if __name__ == "__main__":
-    print(os.listdir("./dataset"))
-    with open('./dataset/2022-2023.json', 'r') as file:
+    with open("./dataset/2022-2023.json") as file:
         fixtures = json.load(file)
 
     games_by_date = defaultdict(list)
     for game in fixtures:
-        date = datetime.strptime(game['DateUtc'], '%Y-%m-%d %H:%M:%S%z').date()
+        date = datetime.strptime(game["DateUtc"], "%Y-%m-%d %H:%M:%S%z").date()
 
         games_by_date[date].append(game)
 
@@ -71,5 +70,6 @@ if __name__ == "__main__":
     for date in sorted_dates:
         # data_to_send = json.dumps()
         send_to_rabbitmq(games_by_date[date])
-        time.sleep(5)
-    print("Starting producer")
+        logger.info(f"Sleeping for 60 seconds to imitating next day")
+        time.sleep(60)
+    logger("Starting producer")

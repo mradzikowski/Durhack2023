@@ -3,9 +3,8 @@ from logging.config import fileConfig
 
 from alembic import context
 from app.core.settings import settings
-
-from app.models.fixtures import Fixture # noqa
-from app.models.base import Base # noqa
+from app.models.base import Base  # noqa
+from app.models.fixtures import Fixture  # noqa
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -35,8 +34,7 @@ target_metadata = Base.metadata  # type: ignore
 # hotfix: https://github.com/sqlalchemy/sqlalchemy/issues/6275
 config.set_main_option(
     "sqlalchemy.url",
-    "postgresql+asyncpg://"
-    + settings.database_url.split("?")[0].split("://")[1],
+    "postgresql+asyncpg://" + settings.database_url.split("?")[0].split("://")[1],
 )
 
 

@@ -1,13 +1,12 @@
 import uuid as uuid
 from enum import Enum
 
-from dateutil import parser
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.base import Base
 from app.utils import get_logger
-from sqlalchemy import Column, Integer, String, select, and_, or_
+from dateutil import parser
+from sqlalchemy import Column, Integer, String, and_, or_, select
 from sqlalchemy.dialects.postgresql import ENUM, UUID
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = get_logger("Fixture Model")
 
@@ -23,10 +22,10 @@ def format_date_string(date_string):
         # Parse the date_string to datetime
         dt = parser.parse(date_string)
         # Format the date consistently
-        return dt.strftime('%d/%m/%Y')
+        return dt.strftime("%d/%m/%Y")
     except ValueError:
         # Handle the error if the date_string is not a valid date
-        print("The provided string is not a recognizable date.")
+        logger.warning("The provided string is not a recognizable date.")
         return None
 
 
@@ -66,7 +65,13 @@ class Fixture(Base):
         )
 
     @classmethod
-    async def find_fixtures_by_teams(cls, db_session: AsyncSession, first_team: str, second_team: str, number_of_fixtures: int):
+    async def find_fixtures_by_teams(
+        cls,
+        db_session: AsyncSession,
+        first_team: str,
+        second_team: str,
+        number_of_fixtures: int,
+    ):
         """
         Find the last number_of_fixtures fixtures between the two teams
         :param db_session: asynchronous db session
@@ -75,26 +80,37 @@ class Fixture(Base):
         :param number_of_fixtures: number of fixtures
         :return: list of fixtures
         """
-        query = select(cls).where(
-            or_(
-                and_(
-                    cls.home_team == first_team,
-                    cls.away_team == second_team,
+        query = (
+            select(cls)
+            .where(
+                or_(
+                    and_(
+                        cls.home_team == first_team,
+                        cls.away_team == second_team,
+                    ),
+                    and_(
+                        cls.home_team == second_team,
+                        cls.away_team == first_team,
+                    ),
                 ),
-                and_(
-                    cls.home_team == second_team,
-                    cls.away_team == first_team,
-                ),
+                # and_(
+                #     cls.home_team.in_([first_team, second_team]),
+                # )
             )
-            # and_(
-            #     cls.home_team.in_([first_team, second_team]),
-            # )
-        ).order_by(cls.date.desc()).limit(number_of_fixtures)
+            .order_by(cls.date.desc())
+            .limit(number_of_fixtures)
+        )
         result = await db_session.execute(query)
         return list(result.scalars().all())
 
     @classmethod
-    async def check_if_the_fixture_exists(cls, db_session: AsyncSession, first_team: str, second_team: str, date: str):
+    async def check_if_the_fixture_exists(
+        cls,
+        db_session: AsyncSession,
+        first_team: str,
+        second_team: str,
+        date: str,
+    ):
         """
         Find the last number_of_fixtures fixtures between the two teams
         :param db_session: asynchronous db session
@@ -103,18 +119,26 @@ class Fixture(Base):
         :param number_of_fixtures: number of fixtures
         :return: list of fixtures
         """
-        query = select(cls).where(
-            first_team == cls.home_team,
-            second_team == cls.away_team,
-            format_date_string(date) == cls.date,
-        ).first()
+        query = (
+            select(cls)
+            .where(
+                first_team == cls.home_team,
+                second_team == cls.away_team,
+                format_date_string(date) == cls.date,
+            )
+            .first()
+        )
         result = await db_session.execute(query)
         value = result.scalars().first()
         return True if value else False
 
     @classmethod
-    async def find_fixtures_by_team(cls, db_session: AsyncSession, team: str,
-                               number_of_fixtures: int):
+    async def find_fixtures_by_team(
+        cls,
+        db_session: AsyncSession,
+        team: str,
+        number_of_fixtures: int,
+    ):
         """
         Find the last number_of_fixtures fixtures between the two teams
         :param db_session: asynchronous db session
@@ -123,18 +147,74 @@ class Fixture(Base):
         :param number_of_fixtures: number of fixtures
         :return: list of fixtures
         """
-        query = select(cls).where(
-            or_(
+        query = (
+            select(cls)
+            .where(
+                or_(
+                    cls.home_team == team,
+                    cls.away_team == team,
+                ),
+            )
+            .order_by(cls.date.desc())
+            .limit(number_of_fixtures)
+        )
+        result = await db_session.execute(query)
+        return list(result.scalars().all())
+
+    @classmethod
+    async def find_fixtures_by_team_home(
+        cls,
+        db_session: AsyncSession,
+        team: str,
+        number_of_fixtures: int,
+    ):
+        """
+        Find the last number_of_fixtures fixtures between the two teams
+        :param db_session: asynchronous db session
+        :param first_team: first team
+        :param second_team: second team
+        :param number_of_fixtures: number of fixtures
+        :return: list of fixtures
+        """
+        query = (
+            select(cls)
+            .where(
                 cls.home_team == team,
+            )
+            .order_by(cls.date.desc())
+            .limit(number_of_fixtures)
+        )
+        result = await db_session.execute(query)
+        return list(result.scalars().all())
+
+    @classmethod
+    async def find_fixtures_by_team_away(
+        cls,
+        db_session: AsyncSession,
+        team: str,
+        number_of_fixtures: int,
+    ):
+        """
+        Find the last number_of_fixtures fixtures between the two teams
+        :param db_session: asynchronous db session
+        :param first_team: first team
+        :param second_team: second team
+        :param number_of_fixtures: number of fixtures
+        :return: list of fixtures
+        """
+        query = (
+            select(cls)
+            .where(
                 cls.away_team == team,
             )
-        ).order_by(cls.date.desc()).limit(number_of_fixtures)
+            .order_by(cls.date.desc())
+            .limit(number_of_fixtures)
+        )
         result = await db_session.execute(query)
         return list(result.scalars().all())
 
     @classmethod
-    async def find_fixtures_by_team_home(cls, db_session: AsyncSession, team: str,
-                                    number_of_fixtures: int):
+    async def find_fixtures_for_team_home(cls, db_session: AsyncSession, team: str):
         """
         Find the last number_of_fixtures fixtures between the two teams
         :param db_session: asynchronous db session
@@ -143,15 +223,18 @@ class Fixture(Base):
         :param number_of_fixtures: number of fixtures
         :return: list of fixtures
         """
-        query = select(cls).where(
+        query = (
+            select(cls)
+            .where(
                 cls.home_team == team,
-        ).order_by(cls.date.desc()).limit(number_of_fixtures)
+            )
+            .order_by(cls.date.desc())
+        )
         result = await db_session.execute(query)
         return list(result.scalars().all())
 
     @classmethod
-    async def find_fixtures_by_team_away(cls, db_session: AsyncSession, team: str,
-                                         number_of_fixtures: int):
+    async def find_fixtures_for_team_away(cls, db_session: AsyncSession, team: str):
         """
         Find the last number_of_fixtures fixtures between the two teams
         :param db_session: asynchronous db session
@@ -160,44 +243,15 @@ class Fixture(Base):
         :param number_of_fixtures: number of fixtures
         :return: list of fixtures
         """
-        query = select(cls).where(
-            cls.away_team == team,
-        ).order_by(cls.date.desc()).limit(number_of_fixtures)
+        query = (
+            select(cls)
+            .where(
+                cls.away_team == team,
+            )
+            .order_by(cls.date.desc())
+        )
         result = await db_session.execute(query)
         return list(result.scalars().all())
-
-    @classmethod
-    async def find_fixtures_for_team_home(cls, db_session: AsyncSession, team: str,):
-        """
-        Find the last number_of_fixtures fixtures between the two teams
-        :param db_session: asynchronous db session
-        :param first_team: first team
-        :param second_team: second team
-        :param number_of_fixtures: number of fixtures
-        :return: list of fixtures
-        """
-        query = select(cls).where(
-            cls.home_team == team,
-        ).order_by(cls.date.desc())
-        result = await db_session.execute(query)
-        return list(result.scalars().all())
-
-    @classmethod
-    async def find_fixtures_for_team_away(cls, db_session: AsyncSession, team: str, ):
-        """
-        Find the last number_of_fixtures fixtures between the two teams
-        :param db_session: asynchronous db session
-        :param first_team: first team
-        :param second_team: second team
-        :param number_of_fixtures: number of fixtures
-        :return: list of fixtures
-        """
-        query = select(cls).where(
-            cls.away_team == team,
-        ).order_by(cls.date.desc())
-        result = await db_session.execute(query)
-        return list(result.scalars().all())
-
 
     def get_result(self, home_goals: int, away_goals: int) -> FixtureResult:
         if home_goals > away_goals:
