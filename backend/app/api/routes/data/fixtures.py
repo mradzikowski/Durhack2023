@@ -1,13 +1,27 @@
 import joblib
 
 from app.deps import get_db
-from app.machine_learning_models.predictorr import predict_the_model
+from app.machine_learning_models.predictorr import predict_the_model, training_the_model
 from app.models.fixtures import Fixture, FixtureResult, format_date_string
 from app.schemas.fixtures import FixtureResponse, FrontendFixtureResponse
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.utils import get_logger
+
+logger = get_logger("Fixtures Router")
+
 router = APIRouter()
+
+
+@router.get(
+    "/retrain",
+)
+async def retraining_the_model(
+    background_tasks: BackgroundTasks,
+):
+    logger.info("Retraining the model in the background...")
+    background_tasks.add_task(training_the_model)
 
 
 @router.get(
