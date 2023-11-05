@@ -1,3 +1,5 @@
+from starlette.middleware.cors import CORSMiddleware
+
 from app.api.routes.data import fixtures
 from fastapi import FastAPI
 
@@ -10,6 +12,34 @@ logger = get_logger("API Main App")
 def get_application() -> FastAPI:
     application = FastAPI(
         title="Durhack2023",
+    )
+
+    origins = [
+        "http://localhost:3000",
+        "https://localhost:3000",
+    ]
+    # application.add_middleware(HTTPSRedirectMiddleware)
+    # ADDED ALLOWED HEADERS AS IN TUTORIAL
+    allowed_headers = [
+        "date",
+        "transfer-encoding",
+        "accept",
+        "accept-encoding",
+        "host",
+        "origin",
+        "referer",
+        "user-agent",
+        "content-encoding",
+        "content-length",
+        "content-type",
+        "cookie",
+    ]
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["*"],
+        allow_headers=allowed_headers,
+        allow_credentials=True,
     )
 
     application.include_router(
