@@ -1,4 +1,8 @@
 import json
+import os
+import time
+from collections import defaultdict
+from datetime import datetime
 
 import pika
 from utils import get_logger
@@ -6,7 +10,7 @@ from utils import get_logger
 logger = get_logger("Data Injector")
 
 
-def send_to_rabbitmq(data: dict):
+def send_to_rabbitmq(data: list[dict]):
     connection = connect_rabbitmq()
     if connection is not None:
         channel = connection.channel()
@@ -52,4 +56,20 @@ def connect_rabbitmq() -> pika.BlockingConnection | None:
 
 
 if __name__ == "__main__":
-    print("Starting publisher")
+    print(os.listdir("./dataset"))
+    with open('./dataset/2022-2023.json', 'r') as file:
+        fixtures = json.load(file)
+
+    games_by_date = defaultdict(list)
+    for game in fixtures:
+        date = datetime.strptime(game['DateUtc'], '%Y-%m-%d %H:%M:%S%z').date()
+
+        games_by_date[date].append(game)
+
+    sorted_dates = sorted(games_by_date.keys())
+
+    for date in sorted_dates:
+        # data_to_send = json.dumps()
+        send_to_rabbitmq(games_by_date[date])
+        time.sleep(5)
+    print("Starting producer")

@@ -3,8 +3,8 @@ from enum import Enum
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.base import Base
-from app.utils import get_logger
+from models.base import Base
+from utils import get_logger
 from sqlalchemy import Column, Integer, String, select, and_, or_
 from sqlalchemy.dialects.postgresql import ENUM, UUID
 
@@ -131,38 +131,6 @@ class Fixture(Base):
         query = select(cls).where(
             cls.away_team == team,
         ).order_by(cls.date.desc()).limit(number_of_fixtures)
-        result = await db_session.execute(query)
-        return list(result.scalars().all())
-
-    @classmethod
-    async def find_fixtures_for_team_home(cls, db_session: AsyncSession, team: str,):
-        """
-        Find the last number_of_fixtures fixtures between the two teams
-        :param db_session: asynchronous db session
-        :param first_team: first team
-        :param second_team: second team
-        :param number_of_fixtures: number of fixtures
-        :return: list of fixtures
-        """
-        query = select(cls).where(
-            cls.home_team == team,
-        ).order_by(cls.date.desc())
-        result = await db_session.execute(query)
-        return list(result.scalars().all())
-
-    @classmethod
-    async def find_fixtures_for_team_away(cls, db_session: AsyncSession, team: str, ):
-        """
-        Find the last number_of_fixtures fixtures between the two teams
-        :param db_session: asynchronous db session
-        :param first_team: first team
-        :param second_team: second team
-        :param number_of_fixtures: number of fixtures
-        :return: list of fixtures
-        """
-        query = select(cls).where(
-            cls.away_team == team,
-        ).order_by(cls.date.desc())
         result = await db_session.execute(query)
         return list(result.scalars().all())
 

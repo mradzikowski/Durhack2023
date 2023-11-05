@@ -1,5 +1,5 @@
 from app.deps import get_db
-from app.models.fixtures import Fixture
+from app.models.fixtures import Fixture, FixtureResult
 from app.schemas.fixtures import FixtureResponse, FrontendFixtureResponse
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +18,10 @@ async def retrieving_last_fixtures_between_teams(
     db_session: AsyncSession = Depends(get_db),
 ):
 
+    home_fixtures: list[Fixture] = await Fixture.find_fixtures_for_team_home(db_session=db_session, team=first_team)
+    away_fixtures: list[Fixture] = await Fixture.find_fixtures_for_team_away(db_session=db_session, team=second_team)
+
+
     return {
         "last_fixtures_home": await Fixture.find_fixtures_by_team(db_session=db_session, team=first_team, number_of_fixtures=number_of_fixtures),
         "last_fixtures_away": await Fixture.find_fixtures_by_team(db_session=db_session, team=second_team, number_of_fixtures=number_of_fixtures),
@@ -27,6 +31,16 @@ async def retrieving_last_fixtures_between_teams(
         "predicted_score": {
             "home": 1,
             "away": 0,
+        },
+        "home_ratio": {
+            "win": len([fix for fix in home_fixtures if fix.result == FixtureResult.HOME]),
+            "draw": len([fix for fix in home_fixtures if fix.result == FixtureResult.DRAW]),
+            "lose": len([fix for fix in home_fixtures if fix.result == FixtureResult.AWAY]),
+        },
+        "away_ratio": {
+            "win": len([fix for fix in away_fixtures if fix.result == FixtureResult.AWAY]),
+            "draw": len([fix for fix in away_fixtures if fix.result == FixtureResult.DRAW]),
+            "lose": len([fix for fix in away_fixtures if fix.result == FixtureResult.HOME]),
         }
     }
 

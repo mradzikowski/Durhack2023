@@ -23,6 +23,12 @@ class PredictedScore(BaseModel):
     away: int | None = None
 
 
+class WinRatio(BaseModel):
+    win: int = 0
+    draw: int = 0
+    lose: int = 0
+
+
 class FrontendFixtureResponse(BaseModel):
     last_fixtures_home: list[FixtureResponse] | None = None
     last_fixtures_away: list[FixtureResponse] | None = None
@@ -30,5 +36,5 @@ class FrontendFixtureResponse(BaseModel):
     last_fixtures_home_home: list[FixtureResponse] | None = None
     last_fixtures_away_away: list[FixtureResponse] | None = None
     predicted_score: PredictedScore | None = None
-
-
+    home_ratio: WinRatio | None = None
+    away_ratio: WinRatio | None = None

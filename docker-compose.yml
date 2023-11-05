@@ -16,30 +16,36 @@ services:
     env_file:
       - ./.env
     restart: on-failure
-#
-#  data_injector:
-#    container_name: data_injector
-#    build:
-#      context: ./data_injector
-#      dockerfile: Dockerfile
-#    env_file:
-#      - ./.env
-#    restart: on-failure
-#
-#  data_processor:
-#    container_name: data_processor
-#    build:
-#      context: ./data_processor
-#      dockerfile: Dockerfile
-#    env_file:
-#      - ./.env
-#    restart: on-failure
-#
-#  rabbitmq:
-#    container_name: rabbitmq
-#    image: rabbitmq:3.12-management
-#    ports:
-#      - "5672:5672"
+
+  data_injector:
+    container_name: data_injector
+    build:
+      context: ./data_injector
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+
+  data_processor:
+    container_name: data_processor
+    build:
+      context: ./data_processor
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"
 
   db:
     container_name: db
