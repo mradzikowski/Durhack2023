@@ -78,5 +78,17 @@
   {
     "name": "Wolverhampton Wanderers",
     "map": "Wolves"
+  },
+  {
+    "name": "Leeds United",
+    "map": "Leeds"
+  },
+  {
+    "name": "Southampton",
+    "map": "Southampton"
+  },
+  {
+    "name": "Leicester City",
+    "map": "Leicester"
   }
 ]
