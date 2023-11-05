@@ -2,6 +2,11 @@
   grid-template-columns: repeat(1, 100%) !important;
 }
 
+.gridtwo {
+  grid-template-columns: repeat(2, 100%) !important;
+  display: grid;
+}
+
 .team {
   display: flex;
   align-items: center;
