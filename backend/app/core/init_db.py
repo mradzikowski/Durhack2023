@@ -25,12 +25,15 @@ async def init_database_on_startup():
                 # Assuming the CSV columns match the columns of the table
                 date = row[1].split("/")
                 date = date[2] + "-" + date[1] + "-" + date[0]
-                data = Fixture(
-                    home_team=row[2],
-                    away_team=row[3],
-                    date=date,
-                    full_time_home_goals=int(row[4]),
-                    full_time_away_goals=int(row[5]),
-                )
-                session.add(data)
+
+                does_data_exist = await Fixture.check_if_the_fixture_exists(db_session=session, first_team=row[2], second_team=row[3], date=date)
+                if not does_data_exist:
+                    data = Fixture(
+                        home_team=row[2],
+                        away_team=row[3],
+                        date=date,
+                        full_time_home_goals=int(row[4]),
+                        full_time_away_goals=int(row[5]),
+                    )
+                    session.add(data)
         await session.commit()

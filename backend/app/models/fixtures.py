@@ -1,6 +1,7 @@
 import uuid as uuid
 from enum import Enum
 
+from dateutil import parser
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.base import Base
@@ -15,6 +16,18 @@ class FixtureResult(Enum):
     HOME = 0
     DRAW = 1
     AWAY = 2
+
+
+def format_date_string(date_string):
+    try:
+        # Parse the date_string to datetime
+        dt = parser.parse(date_string)
+        # Format the date consistently
+        return dt.strftime('%d/%m/%Y')
+    except ValueError:
+        # Handle the error if the date_string is not a valid date
+        print("The provided string is not a recognizable date.")
+        return None
 
 
 class Fixture(Base):
@@ -46,7 +59,7 @@ class Fixture(Base):
         self.away_team = away_team
         self.full_time_home_goals = full_time_home_goals
         self.full_time_away_goals = full_time_away_goals
-        self.date = date
+        self.date = format_date_string(date)
         self.result = self.get_result(
             home_goals=full_time_home_goals,
             away_goals=full_time_away_goals,
@@ -79,6 +92,25 @@ class Fixture(Base):
         ).order_by(cls.date.desc()).limit(number_of_fixtures)
         result = await db_session.execute(query)
         return list(result.scalars().all())
+
+    @classmethod
+    async def check_if_the_fixture_exists(cls, db_session: AsyncSession, first_team: str, second_team: str, date: str):
+        """
+        Find the last number_of_fixtures fixtures between the two teams
+        :param db_session: asynchronous db session
+        :param first_team: first team
+        :param second_team: second team
+        :param number_of_fixtures: number of fixtures
+        :return: list of fixtures
+        """
+        query = select(cls).where(
+            first_team == cls.home_team,
+            second_team == cls.away_team,
+            format_date_string(date) == cls.date,
+        ).first()
+        result = await db_session.execute(query)
+        value = result.scalars().first()
+        return True if value else False
 
     @classmethod
     async def find_fixtures_by_team(cls, db_session: AsyncSession, team: str,
