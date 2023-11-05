@@ -36,7 +36,7 @@ export default function MatchCards({ setSelected }) {
   const getFixtures = async () => {
     const tString = teams.map((t) => t.id).join(",");
     const fixtures = await axios.get(
-      `https://footballapi.pulselive.com/football/fixtures?comps=1&teams=${tString}&compSeasons=578&page=0&pageSize=20&sort=asc&statuses=U,L&altIds=true`,
+      `https://footballapi.pulselive.com/football/fixtures?comps=1&teams=${tString}&compSeasons=578&page=0&pageSize=200&sort=asc&statuses=U,L&altIds=true`,
     );
     setFixtures(fixtures.data.content);
   };
