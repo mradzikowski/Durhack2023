@@ -5,7 +5,7 @@ import Loading from "./Loading";
 import imagemapping from "../Mappings/imagemapping.json";
 import styles from "../page.module.css";
 
-export default function Lander() {
+export default function MatchCards({setSelected}) {
   const [teams, setTeams] = useState(null);
   const [fixtures, setFixtures] = useState(null);
   const [fixtureInfo, setFixtureInfo] = useState(null);
@@ -54,6 +54,7 @@ export default function Lander() {
     );
     setFixtureInfo(getFixtureDetails);
   };
+
   return (
     <>
       {fixtureInfo && Array.isArray(fixtureInfo) ? (
@@ -64,8 +65,10 @@ export default function Lander() {
           const team2ImageMap = imagemapping.find(
             (d) => d.id == fixture.teams[1].team.id
           ).imageId;
+          fixture.team1ImageId = team1ImageMap
+          fixture.team2ImageId = team2ImageMap
           return (
-            <div id={fixture.id} className={styles.card}>
+            <div id={fixture.id} className={`${styles.card} click`} onClick={()=>setSelected(fixture)}>
               <div style={{display:"flex"}}>
                 <div className="team">
                   <img
