@@ -1,8 +1,7 @@
 import uuid
 
-from pydantic import BaseModel, Field
-
 from app.models.fixtures import FixtureResult
+from pydantic import BaseModel, Field
 
 
 class FixtureCreate(BaseModel):

@@ -4,8 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 engine = create_async_engine(
-    "postgresql+asyncpg://"
-    +settings.database_url.split("?")[0].split("://")[1],
+    "postgresql+asyncpg://" + settings.database_url.split("?")[0].split("://")[1],
     future=True,
     echo=False,
     pool_pre_ping=True,

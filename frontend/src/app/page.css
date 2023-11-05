@@ -24,6 +24,6 @@
   flex-grow: 1; /* Allows the VS container to take up the available space */
 }
 
-.click{
+.click {
   cursor: pointer;
 }

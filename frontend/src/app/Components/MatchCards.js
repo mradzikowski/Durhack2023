@@ -5,7 +5,7 @@ import Loading from "./Loading";
 import imagemapping from "../Mappings/imagemapping.json";
 import styles from "../page.module.css";
 
-export default function MatchCards({setSelected}) {
+export default function MatchCards({ setSelected }) {
   const [teams, setTeams] = useState(null);
   const [fixtures, setFixtures] = useState(null);
   const [fixtureInfo, setFixtureInfo] = useState(null);
@@ -28,7 +28,7 @@ export default function MatchCards({setSelected}) {
 
   const getTeams = async () => {
     const teams = await axios.get(
-      "https://footballapi.pulselive.com/football/compseasons/578/teams"
+      "https://footballapi.pulselive.com/football/compseasons/578/teams",
     );
     setTeams(teams.data);
   };
@@ -36,7 +36,7 @@ export default function MatchCards({setSelected}) {
   const getFixtures = async () => {
     const tString = teams.map((t) => t.id).join(",");
     const fixtures = await axios.get(
-      `https://footballapi.pulselive.com/football/fixtures?comps=1&teams=${tString}&compSeasons=578&page=0&pageSize=20&sort=asc&statuses=U,L&altIds=true`
+      `https://footballapi.pulselive.com/football/fixtures?comps=1&teams=${tString}&compSeasons=578&page=0&pageSize=20&sort=asc&statuses=U,L&altIds=true`,
     );
     setFixtures(fixtures.data.content);
   };
@@ -47,10 +47,10 @@ export default function MatchCards({setSelected}) {
         Array.isArray(fixtures) &&
         fixtures.map(async (fix) => {
           const data = await axios.get(
-            `https://footballapi.pulselive.com/football/fixtures/${fix.id}`
+            `https://footballapi.pulselive.com/football/fixtures/${fix.id}`,
           );
           return data.data;
-        })
+        }),
     );
     setFixtureInfo(getFixtureDetails);
   };
@@ -60,17 +60,26 @@ export default function MatchCards({setSelected}) {
       {fixtureInfo && Array.isArray(fixtureInfo) ? (
         fixtureInfo.map((fixture) => {
           const team1ImageMap = imagemapping.find(
-            (d) => d.id == fixture.teams[0].team.id
+            (d) => d.id == fixture.teams[0].team.id,
           ).imageId;
           const team2ImageMap = imagemapping.find(
-            (d) => d.id == fixture.teams[1].team.id
+            (d) => d.id == fixture.teams[1].team.id,
           ).imageId;
-          fixture.team1ImageId = team1ImageMap
-          fixture.team2ImageId = team2ImageMap
+          fixture.team1ImageId = team1ImageMap;
+          fixture.team2ImageId = team2ImageMap;
           return (
-            <div id={fixture.id} key={fixture.id} className={`${styles.card} click`} onClick={()=>setSelected(fixture)}>
-              <div style={{textAlign:"center"}}>{ fixture && fixture.kickoff && fixture.kickoff.label ? new Date(fixture.kickoff.millis).toDateString() : "To be Decided"}</div>
-              <div style={{display:"flex"}}>
+            <div
+              id={fixture.id}
+              key={fixture.id}
+              className={`${styles.card} click`}
+              onClick={() => setSelected(fixture)}
+            >
+              <div style={{ textAlign: "center" }}>
+                {fixture && fixture.kickoff && fixture.kickoff.label
+                  ? new Date(fixture.kickoff.millis).toDateString()
+                  : "To be Decided"}
+              </div>
+              <div style={{ display: "flex" }}>
                 <div className="team">
                   <img
                     width={90}

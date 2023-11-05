@@ -17,33 +17,69 @@ async def retrieving_last_fixtures_between_teams(
     number_of_fixtures: int = 5,
     db_session: AsyncSession = Depends(get_db),
 ):
-
-    home_fixtures: list[Fixture] = await Fixture.find_fixtures_for_team_home(db_session=db_session, team=first_team)
-    away_fixtures: list[Fixture] = await Fixture.find_fixtures_for_team_away(db_session=db_session, team=second_team)
-
+    home_fixtures: list[Fixture] = await Fixture.find_fixtures_for_team_home(
+        db_session=db_session,
+        team=first_team,
+    )
+    away_fixtures: list[Fixture] = await Fixture.find_fixtures_for_team_away(
+        db_session=db_session,
+        team=second_team,
+    )
 
     return {
-        "last_fixtures_home": await Fixture.find_fixtures_by_team(db_session=db_session, team=first_team, number_of_fixtures=number_of_fixtures),
-        "last_fixtures_away": await Fixture.find_fixtures_by_team(db_session=db_session, team=second_team, number_of_fixtures=number_of_fixtures),
-        "last_fixtures_between": await Fixture.find_fixtures_by_teams(db_session=db_session, first_team=first_team, second_team=second_team, number_of_fixtures=number_of_fixtures),
-        "last_fixtures_home_home": await Fixture.find_fixtures_by_team_home(db_session=db_session, number_of_fixtures=number_of_fixtures, team=first_team),
-        "last_fixtures_away_away": await Fixture.find_fixtures_by_team_away(db_session=db_session, number_of_fixtures=number_of_fixtures, team=second_team),
+        "last_fixtures_home": await Fixture.find_fixtures_by_team(
+            db_session=db_session,
+            team=first_team,
+            number_of_fixtures=number_of_fixtures,
+        ),
+        "last_fixtures_away": await Fixture.find_fixtures_by_team(
+            db_session=db_session,
+            team=second_team,
+            number_of_fixtures=number_of_fixtures,
+        ),
+        "last_fixtures_between": await Fixture.find_fixtures_by_teams(
+            db_session=db_session,
+            first_team=first_team,
+            second_team=second_team,
+            number_of_fixtures=number_of_fixtures,
+        ),
+        "last_fixtures_home_home": await Fixture.find_fixtures_by_team_home(
+            db_session=db_session,
+            number_of_fixtures=number_of_fixtures,
+            team=first_team,
+        ),
+        "last_fixtures_away_away": await Fixture.find_fixtures_by_team_away(
+            db_session=db_session,
+            number_of_fixtures=number_of_fixtures,
+            team=second_team,
+        ),
         "predicted_score": {
             "home": 1,
             "away": 0,
         },
         "home_ratio": {
-            "win": len([fix for fix in home_fixtures if fix.result == FixtureResult.HOME]),
-            "draw": len([fix for fix in home_fixtures if fix.result == FixtureResult.DRAW]),
-            "lose": len([fix for fix in home_fixtures if fix.result == FixtureResult.AWAY]),
+            "win": len(
+                [fix for fix in home_fixtures if fix.result == FixtureResult.HOME],
+            ),
+            "draw": len(
+                [fix for fix in home_fixtures if fix.result == FixtureResult.DRAW],
+            ),
+            "lose": len(
+                [fix for fix in home_fixtures if fix.result == FixtureResult.AWAY],
+            ),
         },
         "away_ratio": {
-            "win": len([fix for fix in away_fixtures if fix.result == FixtureResult.AWAY]),
-            "draw": len([fix for fix in away_fixtures if fix.result == FixtureResult.DRAW]),
-            "lose": len([fix for fix in away_fixtures if fix.result == FixtureResult.HOME]),
-        }
+            "win": len(
+                [fix for fix in away_fixtures if fix.result == FixtureResult.AWAY],
+            ),
+            "draw": len(
+                [fix for fix in away_fixtures if fix.result == FixtureResult.DRAW],
+            ),
+            "lose": len(
+                [fix for fix in away_fixtures if fix.result == FixtureResult.HOME],
+            ),
+        },
     }
-
 
 
 @router.get(
@@ -66,7 +102,12 @@ async def retrieving_last_fixtures_between_teams(
     number_of_fixtures: int = 5,
     db_session: AsyncSession = Depends(get_db),
 ):
-    return await Fixture.find_fixtures_by_teams(db_session=db_session, first_team=first_team, second_team=second_team, number_of_fixtures=number_of_fixtures)
+    return await Fixture.find_fixtures_by_teams(
+        db_session=db_session,
+        first_team=first_team,
+        second_team=second_team,
+        number_of_fixtures=number_of_fixtures,
+    )
 
 
 @router.get(
@@ -78,4 +119,8 @@ async def retrieving_last_fixtures_for_team(
     number_of_fixtures: int = 5,
     db_session: AsyncSession = Depends(get_db),
 ):
-    return await Fixture.find_fixtures_by_team(db_session=db_session, team=team, number_of_fixtures=number_of_fixtures)
+    return await Fixture.find_fixtures_by_team(
+        db_session=db_session,
+        team=team,
+        number_of_fixtures=number_of_fixtures,
+    )

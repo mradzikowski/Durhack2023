@@ -1,3 +1,5 @@
+alembic
+asyncpg==0.28.0
 fastapi==0.103.2
 pydantic==2.4.2
 pydantic_settings
@@ -5,8 +7,5 @@ python-multipart==0.0.6
 requests==2.31.0
 rich==13.6.0
 sqlalchemy==1.4.31
-alembic
 uvicorn
-asyncpg==0.28.0
-
-
+dateutil
