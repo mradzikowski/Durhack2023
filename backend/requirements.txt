@@ -9,3 +9,7 @@ rich==13.6.0
 sqlalchemy==1.4.31
 uvicorn
 python-dateutil
+pandas
+numpy
+joblib
+scikit-learn

@@ -1,83 +1,112 @@
+import joblib
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import mean_squared_error
-import numpy as np
-import matplotlib.pyplot as plt
 
-# Load the dataset
-data = pd.read_csv("combined_data.csv")
+from app.db.session import async_session
+from app.models.fixtures import Fixture, format_date_string
+from app.utils import get_logger
 
-# Filter data for years 2000 to 2022
-data = data[data['Date'].str[-2:] >= '00']
-data = data[data['Date'].str[-2:] <= '22']
+logger = get_logger("Predictor")
 
-# Define input features and target variables
-X = data[['HomeTeam', 'AwayTeam']]
-y_FTHG = data['FTHG']
-y_FTAG = data['FTAG']
 
-# One-hot encode team names
-encoder = OneHotEncoder(sparse=False)
-X_encoded = encoder.fit_transform(X)
+async def get_data_from_database() -> list[Fixture]:
+    async with async_session() as session:
+        fixtures: list[Fixture] = await Fixture.find_all(db_session=session)
+        return fixtures
 
-# Convert the encoded features into a DataFrame
-X_encoded_df = pd.DataFrame(X_encoded, columns=encoder.get_feature_names_out(['HomeTeam', 'AwayTeam']))
 
-# Combine the encoded features with the target variables
-dataset_encoded = pd.concat([X_encoded_df, data[['FTHG', 'FTAG']]], axis=1)
+async def convert_data_to_pandas_dataframe() -> pd.DataFrame:
+    fixtures = await get_data_from_database()
+    data = []
+    for fixture in fixtures:
+        data.append(
+            {
+                "date": fixture.date,
+                "home_team": fixture.home_team,
+                "away_team": fixture.away_team,
+                "full_time_home_goals": fixture.full_time_home_goals,
+                "full_time_away_goals": fixture.full_time_away_goals,
+            },
+        )
+    return pd.DataFrame(data)
 
-# Train the model (Linear Regression is used as an example)
-model_FTHG = LinearRegression()
-model_FTHG.fit(X_encoded_df, y_FTHG)
 
-model_FTAG = LinearRegression()
-model_FTAG.fit(X_encoded_df, y_FTAG)
+async def training_the_model():
+    data = await convert_data_to_pandas_dataframe()
+    data['date'] = pd.to_datetime(data['date']).map(pd.Timestamp.toordinal)
+    X = data[['home_team', 'away_team', 'date']]
 
-# Get user input for home and away teams and date
-home_team = input("Enter the home team: ")
-away_team = input("Enter the away team: ")
-date = input("Enter the date (in the format 'DD-MM-YYYY'): ")
+    y_FTHG = data['full_time_home_goals']
+    y_FTAG = data['full_time_away_goals']
 
-# Ensure the provided team names exist in the dataset
-if home_team in X['HomeTeam'].values and away_team in X['AwayTeam'].values:
-    # Filter the dataset based on the provided date
-    filtered_data = data[data['Date'] == date]
-    
-    if not filtered_data.empty:
-        # One-hot encode the input team names
-        input_encoded = encoder.transform([[home_team, away_team]])
+    categorical_features = ['home_team', 'away_team']
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
+        ],
+        remainder='passthrough'
+    )
 
-        # Predict FTHG and FTAG
-        predicted_FTHG = model_FTHG.predict(input_encoded)
-        predicted_FTAG = model_FTAG.predict(input_encoded)
+    X_train, X_test, y_home_train, y_home_test, y_away_train, y_away_test = train_test_split(
+        X, y_FTHG, y_FTAG, test_size=0.2, random_state=42)
 
-        print(f"Predicted FTHG: {predicted_FTHG[0]}")
-        print(f"Predicted FTAG: {predicted_FTAG[0]}")
+    model_home = Pipeline(steps=[('preprocessor', preprocessor),
+                                 ('regressor', RandomForestRegressor(random_state=42))])
+    model_away = Pipeline(steps=[('preprocessor', preprocessor),
+                                 ('regressor', RandomForestRegressor(random_state=42))])
+
+
+    model_home.fit(X_train, y_home_train)
+    model_away.fit(X_train, y_away_train)
+
+    y_home_pred = model_home.predict(X_test)
+    y_away_pred = model_away.predict(X_test)
+
+    home_mse = mean_squared_error(y_home_test, y_home_pred)
+    away_mse = mean_squared_error(y_away_test, y_away_pred)
+
+    logger.info(f"Home Goals Prediction MSE: {home_mse}")
+    logger.info(f"Away Goals Prediction MSE: {away_mse}")
+
+    joblib.dump(model_home, 'predicting_fthg.pkl')
+    joblib.dump(model_away, 'predicting_ftag.pkl')
+    joblib.dump(preprocessor, 'preprocessor.pkl')
+
+    return model_home, model_away
+
+
+async def predict_the_model(fixture: Fixture | None, model_FTHG, model_FTAG, home_team, away_team, date):
+    date = format_date_string(date)
+    if fixture:
+        data = [{
+            "date": fixture.date,
+            "home_team": fixture.home_team,
+            "away_team": fixture.away_team,
+        }]
     else:
-        print(f"No other match data found for the same match of these two teams: {date}")
-else:
-    print("Team names not found in the dataset. Please provide valid team names.")
+        data = [{
+            "date": date,
+            "home_team": home_team,
+            "away_team": away_team,
+        }]
 
-predicted_FTHG = model_FTHG.predict(X_encoded_df)
-predicted_FTAG = model_FTAG.predict(X_encoded_df)
+    data[0]['date'] = pd.to_datetime(data[0]['date']).toordinal()
 
-# Calculate the RMSE for FTHG and FTAG predictions
-rmse_FTHG = np.sqrt(mean_squared_error(y_FTHG, predicted_FTHG))
-rmse_FTAG = np.sqrt(mean_squared_error(y_FTAG, predicted_FTAG))
+    data = pd.DataFrame(data)
 
-print(f"RMSE FTHG: {rmse_FTHG}")
-print(f"RMSE FTAG: {rmse_FTAG}")
+    predictions_fthg = model_FTHG.predict(data)
+    predictions_ftag = model_FTAG.predict(data)
 
-# Teams
-teams = ['Home Game Wins', 'Away Game Wins']
+    logger.info(f"Data predicted fthg {predictions_fthg}")
+    logger.info(f"Data predicted ftag {predictions_ftag}")
 
-# RMSE values for each team
-rmse_values = [rmse_FTHG, rmse_FTAG]
+    logger.info(f"Predicted FTHG: {predictions_fthg[0]}")
+    logger.info(f"Predicted FTAG: {predictions_ftag[0]}")
 
-# Create a bar chart
-plt.bar(teams, rmse_values, color=['darkblue', 'darkgreen'])
-plt.xlabel('Team')
-plt.ylabel('RMSE')
-plt.title('Root Mean Squared Error (RMSE) for Goals Prediction')
-plt.show()
+    return (predictions_fthg[0], predictions_ftag[0])
+

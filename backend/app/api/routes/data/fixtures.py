@@ -1,5 +1,8 @@
+import joblib
+
 from app.deps import get_db
-from app.models.fixtures import Fixture, FixtureResult
+from app.machine_learning_models.predictorr import predict_the_model
+from app.models.fixtures import Fixture, FixtureResult, format_date_string
 from app.schemas.fixtures import FixtureResponse, FrontendFixtureResponse
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,12 +11,13 @@ router = APIRouter()
 
 
 @router.get(
-    "/prediction/{first_team}/{second_team}/{number_of_fixtures}",
+    "/prediction/{first_team}/{second_team}/{number_of_fixtures}/{date}",
     response_model=FrontendFixtureResponse,
 )
 async def retrieving_last_fixtures_between_teams(
     first_team: str,
     second_team: str,
+    date: str,
     number_of_fixtures: int = 5,
     db_session: AsyncSession = Depends(get_db),
 ):
@@ -25,6 +29,16 @@ async def retrieving_last_fixtures_between_teams(
         db_session=db_session,
         team=second_team,
     )
+
+    predicted_ftag, predicted_fthg = await predict_the_model(
+        home_team=first_team,
+        away_team=second_team,
+        date=format_date_string(date),
+        model_FTAG=joblib.load('predicting_fthg.pkl'),
+        model_FTHG=joblib.load('predicting_ftag.pkl'),
+        fixture=None,
+    )
+
 
     return {
         "last_fixtures_home": await Fixture.find_fixtures_by_team(
@@ -54,8 +68,8 @@ async def retrieving_last_fixtures_between_teams(
             team=second_team,
         ),
         "predicted_score": {
-            "home": 1,
-            "away": 0,
+            "home": round(predicted_fthg),
+            "away": round(predicted_ftag),
         },
         "home_ratio": {
             "win": len(

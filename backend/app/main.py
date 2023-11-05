@@ -1,5 +1,8 @@
+import os
+
 from app.api.routes.data import fixtures
 from app.core.init_db import init_database_on_startup
+from app.machine_learning_models.predictorr import training_the_model
 from app.utils import get_logger
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -59,6 +62,11 @@ async def startup_event():
     """
     logger.info("Starting up...")
     await init_database_on_startup()
+
+    if os.path.exists("predicting_ftag.pkl") and os.path.exists("predicting_fthg.pkl"):
+        logger.info("Models already trained")
+    else:
+        await training_the_model()
 
 
 @app.on_event("shutdown")
