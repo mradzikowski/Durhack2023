@@ -66,23 +66,25 @@ export default function Lander() {
           ).imageId;
           return (
             <div id={fixture.id} className={styles.card}>
-              <span>
-                <img
-                  width={90}
-                  height={90}
-                  src={`https://resources.premierleague.com/premierleague/badges/50/t${team1ImageMap}@x2.png`}
-                />
-                <span>{fixture.teams[0].team.name}</span>
-              </span>
-              <span>{" VS "}</span>
-              <span>
-                <span>{fixture.teams[1].team.name}</span>
-                <img
-                  width={90}
-                  height={90}
-                  src={`https://resources.premierleague.com/premierleague/badges/50/t${team2ImageMap}@x2.png`}
-                />
-              </span>
+              <div style={{display:"flex"}}>
+                <div className="team">
+                  <img
+                    width={90}
+                    height={90}
+                    src={`https://resources.premierleague.com/premierleague/badges/50/t${team1ImageMap}@x2.png`}
+                  />
+                  <span>{fixture.teams[0].team.name}</span>
+                </div>
+                <div className="vs">{" VS "}</div>
+                <div className="team">
+                  <span>{fixture.teams[1].team.name}</span>
+                  <img
+                    width={90}
+                    height={90}
+                    src={`https://resources.premierleague.com/premierleague/badges/50/t${team2ImageMap}@x2.png`}
+                  />
+                </div>
+              </div>
             </div>
           );
         })

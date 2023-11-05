@@ -1,3 +1,20 @@
-.grid-1{
-    grid-template-columns: repeat(1, 100%) !important;
+.gridone {
+  grid-template-columns: repeat(1, 100%) !important;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+}
+.team img {
+  flex-shrink: 0; /* Prevents the image from shrinking */
+}
+.team span {
+  margin: 0 10px; /* Add some space between the image and the text */
+}
+.vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1; /* Allows the VS container to take up the available space */
 }
