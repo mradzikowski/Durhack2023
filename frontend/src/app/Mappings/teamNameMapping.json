@@ -1,0 +1,82 @@
+[
+    {
+        "name": "Arsenal",
+        "map": "Arsenal"
+    },
+    {
+        "name": "Aston Villa",
+        "map": "Aston Villa"
+    },
+    {
+        "name": "Bournemouth",
+        "map": "Bournemouth"
+    },
+    {
+        "name": "Brentford",
+        "map": "Brentford"
+    },
+    {
+        "name": "Brighton & Hove Albion",
+        "map": "Brighton"
+    },
+    {
+        "name": "Burnley",
+        "map": "Burnley"
+    },
+    {
+        "name": "Chelsea",
+        "map": "Chelsea"
+    },
+    {
+        "name": "Crystal Palace",
+        "map": "Crystal Palace"
+    },
+    {
+        "name": "Everton",
+        "map": "Everton"
+    },
+    {
+        "name": "Fulham",
+        "map": "Fulham"
+    },
+    {
+        "name": "Liverpool",
+        "map": "Liverpool"
+    },
+    {
+        "name": "Luton Town",
+        "map": "Luton Town"
+    },
+    {
+        "name": "Manchester City",
+        "map": "Man City"
+    },
+    {
+        "name": "Manchester United",
+        "map": "Man United"
+    },
+    {
+        "name": "Newcastle United",
+        "map": "Newcastle"
+    },
+    {
+        "name": "Nottingham Forest",
+        "map": "Nottingham Forest"
+    },
+    {
+        "name": "Sheffield United",
+        "map": "Sheffield United"
+    },
+    {
+        "name": "Tottenham Hotspur",
+        "map": "Tottenham"
+    },
+    {
+        "name": "West Ham United",
+        "map": "West Ham"
+    },
+    {
+        "name": "Wolverhampton Wanderers",
+        "map": "Wolves"
+    }
+]
