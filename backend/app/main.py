@@ -1,5 +1,11 @@
+from app.api.routes.data import fixtures
 from fastapi import FastAPI
-from api.routes.data import retrieval
+
+from app.core.init_db import init_database_on_startup
+from app.utils import get_logger
+
+logger = get_logger("API Main App")
+
 
 def get_application() -> FastAPI:
     application = FastAPI(
@@ -7,12 +13,13 @@ def get_application() -> FastAPI:
     )
 
     application.include_router(
-        retrieval.router,
-        prefix="/data",
-        tags=["data"],
+        fixtures.router,
+        prefix="/fixtures",
+        tags=["fixtures"],
     )
 
     return application
+
 
 app = get_application()
 
@@ -23,6 +30,7 @@ async def startup_event():
     Event on startup to start the database
     """
     logger.info("Starting up...")
+    await init_database_on_startup()
 
 
 @app.on_event("shutdown")

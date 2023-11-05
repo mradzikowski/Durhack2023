@@ -1,10 +1,13 @@
 import json
 
 import pika
+from utils import get_logger
 
-if __name__ == '__main__':
+logger = get_logger("Data Processor")
+
+
+if __name__ == "__main__":
     print("Starting consumer")
-
 
     def callback(ch, method, properties, body):
         pass
@@ -13,7 +16,12 @@ if __name__ == '__main__':
     while True:
         try:
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host="rabbitmq", port=5672, socket_timeout=60))
+                pika.ConnectionParameters(
+                    host="rabbitmq",
+                    port=5672,
+                    socket_timeout=60,
+                ),
+            )
             print("Connected to RabbitMQ")
             break
         except Exception:
@@ -24,8 +32,10 @@ if __name__ == '__main__':
     # Declare a queue
     channel.queue_declare(queue="PremierLeague")
 
-    channel.basic_consume(queue="PremierLeague",
-                          auto_ack=True,
-                          on_message_callback=callback)
+    channel.basic_consume(
+        queue="PremierLeague",
+        auto_ack=True,
+        on_message_callback=callback,
+    )
 
     channel.start_consuming()

@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-
   backend:
     container_name: backend
     build:
@@ -10,35 +9,37 @@ services:
     volumes:
       - ./backend/:/usr/src/app/
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - db
     ports:
       - "8080:8080"
     env_file:
       - ./.env
     restart: on-failure
-
-  data_injector:
-    container_name: data_injector
-    build:
-      context: ./data_injector
-      dockerfile: Dockerfile
-    env_file:
-      - ./.env
-    restart: on-failure
-
-  data_processor:
-    container_name: data_processor
-    build:
-      context: ./data_processor
-      dockerfile: Dockerfile
-    env_file:
-      - ./.env
-    restart: on-failure
-
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3.12-management
-    ports:
-      - "5672:5672"
+#
+#  data_injector:
+#    container_name: data_injector
+#    build:
+#      context: ./data_injector
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./.env
+#    restart: on-failure
+#
+#  data_processor:
+#    container_name: data_processor
+#    build:
+#      context: ./data_processor
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./.env
+#    restart: on-failure
+#
+#  rabbitmq:
+#    container_name: rabbitmq
+#    image: rabbitmq:3.12-management
+#    ports:
+#      - "5672:5672"
 
   db:
     container_name: db
@@ -47,3 +48,8 @@ services:
       - ./.env
     ports:
       - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${SQL_DB} -U ${POSTGRES_USER}" ]
+      interval: 3s
+      timeout: 1s
+      retries: 5

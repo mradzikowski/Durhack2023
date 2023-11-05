@@ -1,24 +1,55 @@
-from paho.mqtt import client as mqtt_client
+import json
+
+import pika
+from utils import get_logger
+
+logger = get_logger("Data Injector")
 
 
-def connect_mqtt() -> mqtt_client:
-    logger.info("Connecting to MQTT Broker...")
+def send_to_rabbitmq(data: dict):
+    connection = connect_rabbitmq()
+    if connection is not None:
+        channel = connection.channel()
 
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            logger.info("Connected to MQTT Broker!")
-        else:
-            logger.info("Failed to connect, return code %d\n", rc)
+        channel.queue_declare(queue="PremierLeague")
+        logger.info(f"Sending data to RabbitMQ {data}")
+        channel.basic_publish(
+            exchange="",
+            routing_key="PremierLeague",
+            body=json.dumps(data),
+        )
+        logger.info(
+            "Data sent to RabbitMQ and closing connection BlockingConnection with RabbitMQ.",
+        )
+        connection.close()
+    else:
+        logger.error(
+            "Connection to RabbitMQ failed. Investigate the logs and connection to RabbitMQ service.",
+        )
 
-    client = mqtt_client.Client(env_variables.client_id, transport="tcp")
-    client.on_connect = on_connect
+
+def connect_rabbitmq() -> pika.BlockingConnection | None:
+    logger.info("Connecting to RabbitMQ...")
+    connection = None
+    # Trying to brute-forcely connect to RabbitMQ service with timeout 1min
     while True:
         try:
-            client.connect(host=env_variables.emqx_ip, port=env_variables.emqx_port)
-            logger.info("Connected to MQTT Broker as Subscriber!")
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    host="rabbitmq",
+                    port=5672,
+                    socket_timeout=60,
+                ),
+            )
+            logger.info("Connected to RabbitMQ")
             break
+        # In case of ANY exceptions, trying to connect again
         except Exception:
-            logger.info("Cannot connect to MQTT Broker as Subscriber!")
+            logger.info("Waiting for RabbitMQ")
             continue
 
-    return client
+    return connection
+
+
+if __name__ == "__main__":
+    print("Starting publisher")

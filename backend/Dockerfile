@@ -18,3 +18,6 @@ RUN set -eux \
 
 COPY . /usr/src/app/
 EXPOSE 5500
+RUN chmod +x /usr/src/app/entrypoint.sh
+
+CMD ["sh", "entrypoint.sh"]
