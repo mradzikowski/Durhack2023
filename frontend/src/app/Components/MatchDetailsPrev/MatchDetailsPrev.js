@@ -24,12 +24,14 @@ const MatchDetailsPrev = ({ selected, setSelected }) => {
   }, []);
 
   const getMatchDetails = async () => {
-    const team1 = teamNameMapping.find(
+    let team1 = teamNameMapping.find(
       (d) => d.name == fixture.teams[0].team.name
-    ).map;
-    const team2 = teamNameMapping.find(
+    )
+    team1 = team1 ? team1.map : fixture.teams[0].team.name
+    let team2 = teamNameMapping.find(
       (d) => d.name == fixture.teams[1].team.name
-    ).map;
+    )
+    team2 = team2 ? team2.map : fixture.teams[1].team.name
     const date = selected && selected.kickoff && selected.kickoff.millis ? new Date(selected.kickoff.millis).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     const match = await axios.get(
       `http://localhost:8080/fixtures/prediction/${team1}/${team2}/5/${date}`
