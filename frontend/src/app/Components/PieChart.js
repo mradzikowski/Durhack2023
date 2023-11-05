@@ -13,7 +13,7 @@ const options = {
       }
     }
   },
-  labels:["win","draw","lose"],
+  labels:["Win","Draw","Lose"],
   colors:["#008000","#808080","#ff0000"]
 };
 
