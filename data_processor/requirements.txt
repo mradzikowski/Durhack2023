@@ -5,4 +5,4 @@ pika
 pydantic_settings
 rich
 sqlalchemy==1.4.31
-dateutil
+python-dateutil
